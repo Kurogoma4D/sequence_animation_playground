@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
+import 'package:sequence_animation_playground/square_animation_page.dart';
+import 'package:sequence_animation_playground/starlight_animation_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -27,6 +29,28 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Animation Example'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            ListTile(
+              title: Text('loading'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        const SquareAnimationPage()),
+              ),
+            ),
+            ListTile(
+              title: Text('starlight'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        const StarlightAnimationPage()),
+              ),
+            )
+          ],
+        ),
       ),
       body: Center(
         child: Container(
