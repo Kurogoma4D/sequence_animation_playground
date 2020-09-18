@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
+import 'package:sequence_animation_playground/loading_animation_page.dart';
 import 'package:sequence_animation_playground/square_animation_page.dart';
 import 'package:sequence_animation_playground/starlight_animation_page.dart';
 
@@ -34,7 +35,7 @@ class HomePage extends StatelessWidget {
         child: ListView(
           children: [
             ListTile(
-              title: Text('loading'),
+              title: Text('square'),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
@@ -47,6 +48,14 @@ class HomePage extends StatelessWidget {
                 MaterialPageRoute(
                     builder: (BuildContext context) =>
                         const StarlightAnimationPage()),
+              ),
+            ),
+            ListTile(
+              title: Text('loading'),
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        const LoadingAnimationPage()),
               ),
             )
           ],
