@@ -43,143 +43,67 @@ class __AnimationAreaState extends State<_AnimationArea>
     controller = AnimationController(vsync: this)
       ..addListener(() => setState(() {}));
 
-    final inCurve = Cubic(.62, .01, .53, .54);
-    final outCurve = Cubic(.5, .5, .51, .99);
-
-    const baseFirst = Duration(milliseconds: 500);
-    const baseSecond = Duration(milliseconds: 1200);
-    const baseThird = Duration(milliseconds: 1700);
-
     const delay = Duration(milliseconds: 200);
 
-    sequence = reset()
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.4),
-            from: Duration.zero,
-            to: baseFirst,
-            tag: 'circle0',
-            curve: inCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.4, end: 0.6),
-            from: baseFirst,
-            to: baseSecond,
-            tag: 'circle0',
-            curve: Curves.linear)
-        .addAnimatable(
-            animatable: Tween(begin: 0.6, end: 1.0),
-            from: baseSecond,
-            to: baseThird,
-            tag: 'circle0',
-            curve: outCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.4),
-            from: Duration.zero,
-            to: baseFirst + delay,
-            tag: 'circle1',
-            curve: inCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.4, end: 0.6),
-            from: baseFirst + delay,
-            to: baseSecond + delay,
-            tag: 'circle1',
-            curve: Curves.linear)
-        .addAnimatable(
-            animatable: Tween(begin: 0.6, end: 1.0),
-            from: baseSecond + delay,
-            to: baseThird + delay,
-            tag: 'circle1',
-            curve: outCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.4),
-            from: Duration.zero,
-            to: baseFirst + delay * 2,
-            tag: 'circle2',
-            curve: inCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.4, end: 0.6),
-            from: baseFirst + delay * 2,
-            to: baseSecond + delay * 2,
-            tag: 'circle2',
-            curve: Curves.linear)
-        .addAnimatable(
-            animatable: Tween(begin: 0.6, end: 1.0),
-            from: baseSecond + delay * 2,
-            to: baseThird + delay * 2,
-            tag: 'circle2',
-            curve: outCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.4),
-            from: Duration.zero,
-            to: baseFirst + delay * 3,
-            tag: 'circle3',
-            curve: inCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.4, end: 0.6),
-            from: baseFirst + delay * 3,
-            to: baseSecond + delay * 3,
-            tag: 'circle3',
-            curve: Curves.linear)
-        .addAnimatable(
-            animatable: Tween(begin: 0.6, end: 1.0),
-            from: baseSecond + delay * 3,
-            to: baseThird + delay * 3,
-            tag: 'circle3',
-            curve: outCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.4),
-            from: Duration.zero,
-            to: baseFirst + delay * 4,
-            tag: 'circle4',
-            curve: inCurve)
-        .addAnimatable(
-            animatable: Tween(begin: 0.4, end: 0.6),
-            from: baseFirst + delay * 4,
-            to: baseSecond + delay * 4,
-            tag: 'circle4',
-            curve: Curves.linear)
-        .addAnimatable(
-            animatable: Tween(begin: 0.6, end: 1.0),
-            from: baseSecond + delay * 4,
-            to: baseThird + delay * 4,
-            tag: 'circle4',
-            curve: outCurve)
-        .animate(controller);
+    var builder = reset();
+
+    for (int i = 0; i < 5; i++) {
+      builder = addSingleCircleAnimation(
+        builder: builder,
+        delay: delay * i,
+        tag: labels[i],
+      );
+    }
+
+    sequence = builder.animate(controller);
 
     controller.repeat();
   }
 
   SequenceAnimationBuilder reset() {
-    return SequenceAnimationBuilder()
+    var builder = SequenceAnimationBuilder();
+
+    for (final label in labels) {
+      builder.addAnimatable(
+          animatable: Tween(begin: 0.0, end: 0.0),
+          from: Duration.zero,
+          to: Duration.zero,
+          tag: label,
+          curve: Curves.ease);
+    }
+
+    return builder;
+  }
+
+  SequenceAnimationBuilder addSingleCircleAnimation(
+      {SequenceAnimationBuilder builder, Duration delay, String tag}) {
+    const inCurve = Cubic(.62, .01, .53, .54);
+    const outCurve = Cubic(.5, .5, .51, .99);
+
+    const baseFirst = Duration(milliseconds: 500);
+    const baseSecond = Duration(milliseconds: 1200);
+    const baseThird = Duration(milliseconds: 1700);
+
+    builder
         .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.0),
+            animatable: Tween(begin: 0.0, end: 0.4),
             from: Duration.zero,
-            to: Duration.zero,
-            tag: 'circle0',
-            curve: Curves.ease)
+            to: baseFirst + delay,
+            tag: tag,
+            curve: inCurve)
         .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.0),
-            from: Duration.zero,
-            to: Duration.zero,
-            tag: 'circle1',
-            curve: Curves.ease)
+            animatable: Tween(begin: 0.4, end: 0.6),
+            from: baseFirst + delay,
+            to: baseSecond + delay,
+            tag: tag,
+            curve: Curves.linear)
         .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.0),
-            from: Duration.zero,
-            to: Duration.zero,
-            tag: 'circle2',
-            curve: Curves.ease)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.0),
-            from: Duration.zero,
-            to: Duration.zero,
-            tag: 'circle3',
-            curve: Curves.ease)
-        .addAnimatable(
-            animatable: Tween(begin: 0.0, end: 0.0),
-            from: Duration.zero,
-            to: Duration.zero,
-            tag: 'circle4',
-            curve: Curves.ease);
+            animatable: Tween(begin: 0.6, end: 1.0),
+            from: baseSecond + delay,
+            to: baseThird + delay,
+            tag: tag,
+            curve: outCurve);
+    return builder;
   }
 
   @override
