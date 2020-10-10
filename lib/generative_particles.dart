@@ -5,6 +5,7 @@ import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 
 const MAX_PARTICLES = 20;
 const POSITION_TAG = 'particle_position';
+const RADIUS_TAG = 'particle_radius';
 
 class GenerativeParticles extends StatelessWidget {
   const GenerativeParticles({Key key}) : super(key: key);
@@ -12,6 +13,7 @@ class GenerativeParticles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xff242424),
       appBar: AppBar(
         title: Text('Generative Particles'),
       ),
@@ -34,8 +36,8 @@ class __AnimationAreaState extends State<_AnimationArea>
   final random = math.Random();
 
   SequenceAnimation _generateAnimation(AnimationController controller) {
-    /// 半径 50 ~ 90 の範囲
-    final radius = random.nextInt(40) + 50;
+    /// 半径 50 ~ 150 の範囲
+    final radius = random.nextInt(100) + 50;
 
     /// 角度は全方位ランダム
     final angle = random.nextDouble() * 2 * math.pi;
@@ -43,13 +45,26 @@ class __AnimationAreaState extends State<_AnimationArea>
     /// 目標地点を極座標から定義
     final objective =
         Offset(radius * math.cos(angle), radius * math.sin(angle));
-    // TODO: durationもバラけさせる
+
+    /// 生存時間
+    final duration = Duration(milliseconds: random.nextInt(1200) + 600);
     return SequenceAnimationBuilder()
+        .addAnimatable(
+            animatable: Tween(begin: 8.0, end: 8.0),
+            from: Duration.zero,
+            to: Duration.zero,
+            tag: RADIUS_TAG)
         .addAnimatable(
             animatable: Tween<Offset>(begin: Offset.zero, end: objective),
             from: Duration.zero,
-            to: Duration(milliseconds: 1200),
-            tag: POSITION_TAG)
+            to: duration,
+            tag: POSITION_TAG,
+            curve: Curves.ease)
+        .addAnimatable(
+            animatable: Tween(begin: 8.0, end: 0.0),
+            from: duration * 0.4,
+            to: duration,
+            tag: RADIUS_TAG)
         .animate(controller);
   }
 
@@ -68,11 +83,12 @@ class __AnimationAreaState extends State<_AnimationArea>
       controller.addStatusListener((status) {
         if (status == AnimationStatus.completed) {
           final index = controllers.indexOf(controller);
-          // TODO: sequenceを変える
+          sequences[index] = _generateAnimation(controller);
+          controller.forward(from: 0.0);
         }
       });
 
-      controller.repeat();
+      controller.forward();
     }
 
     super.initState();
@@ -101,8 +117,6 @@ class __AnimationAreaState extends State<_AnimationArea>
 }
 
 class _Painter extends CustomPainter {
-  static const circleRadius = 8.0;
-
   final List<SequenceAnimation> sequences;
 
   _Painter(this.sequences);
@@ -116,8 +130,8 @@ class _Painter extends CustomPainter {
     for (final sequence in sequences) {
       final animatePosition = sequence[POSITION_TAG].value as Offset;
       final position = size / 2 + animatePosition;
-      canvas.drawCircle(
-          Offset(position.width, position.height), circleRadius, paint);
+      canvas.drawCircle(Offset(position.width, position.height),
+          sequence[RADIUS_TAG].value, paint);
     }
   }
 
