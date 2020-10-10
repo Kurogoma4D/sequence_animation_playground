@@ -1,5 +1,5 @@
-name: sequence_animation_playground
-description: Just playground for flutter_sequence_animation package.
+name: animation_playground
+description: Just playground for animation implements.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.

@@ -1,4 +1,4 @@
-# sequence_animation_playground
+# animation_playground
 
 Just playground for flutter_sequence_animation package.
 
