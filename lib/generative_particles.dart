@@ -3,7 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_sequence_animation/flutter_sequence_animation.dart';
 
-const MAX_PARTICLES = 20;
+const MAX_PARTICLES = 12;
 const POSITION_TAG = 'particle_position';
 const RADIUS_TAG = 'particle_radius';
 
@@ -34,10 +34,12 @@ class __AnimationAreaState extends State<_AnimationArea>
   List<AnimationController> controllers = [];
   List<SequenceAnimation> sequences = [];
   final random = math.Random();
+  Offset tapPosition = Offset.zero;
+  bool isDragging = false;
 
   SequenceAnimation _generateAnimation(AnimationController controller) {
-    /// 半径 50 ~ 150 の範囲
-    final radius = random.nextInt(100) + 50;
+    /// 半径 20 ~ 80 の範囲
+    final radius = random.nextInt(60) + 20;
 
     /// 角度は全方位ランダム
     final angle = random.nextDouble() * 2 * math.pi;
@@ -87,8 +89,6 @@ class __AnimationAreaState extends State<_AnimationArea>
           controller.forward(from: 0.0);
         }
       });
-
-      controller.forward();
     }
 
     super.initState();
@@ -96,15 +96,52 @@ class __AnimationAreaState extends State<_AnimationArea>
 
   @override
   Widget build(BuildContext context) {
-    return RepaintBoundary(
-      child: CustomPaint(
-        size: Size(
-          MediaQuery.of(context).size.width,
-          MediaQuery.of(context).size.height,
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: (_) => _onTapUp(),
+      onPanUpdate: (detail) => _updatePosition(detail.localPosition),
+      onPanStart: (detail) => _updatePosition(detail.localPosition),
+      onPanEnd: (_) => _onTapUp(),
+      child: AnimatedOpacity(
+        opacity: isDragging ? 1.0 : 0.0,
+        duration: Duration(milliseconds: 550),
+        child: RepaintBoundary(
+          child: CustomPaint(
+            size: Size(
+              MediaQuery.of(context).size.width,
+              MediaQuery.of(context).size.height,
+            ),
+            painter: _Painter(sequences, tapPosition, isDragging),
+          ),
         ),
-        painter: _Painter(sequences),
       ),
     );
+  }
+
+  void _onTapDown(TapDownDetails details) {
+    isDragging = true;
+    tapPosition = details.localPosition;
+    for (final controller in controllers) {
+      controller.forward(from: 0);
+    }
+  }
+
+  void _updatePosition(Offset position) {
+    tapPosition = position;
+  }
+
+  void _onTapUp() async {
+    setState(() {
+      isDragging = false;
+    });
+    for (final controller in controllers) {
+      controller.stop();
+    }
+  }
+
+  void stopAnimationOnCompleted(
+      AnimationStatus status, AnimationController controller) {
+    if (status == AnimationStatus.completed) controller.stop();
   }
 
   @override
@@ -118,23 +155,27 @@ class __AnimationAreaState extends State<_AnimationArea>
 
 class _Painter extends CustomPainter {
   final List<SequenceAnimation> sequences;
+  final Offset tapPosition;
+  final bool isDragging;
 
-  _Painter(this.sequences);
+  _Painter(this.sequences, this.tapPosition, this.isDragging);
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (!isDragging) return;
+
     final paint = Paint()
       ..color = Colors.greenAccent
       ..style = PaintingStyle.fill;
 
     for (final sequence in sequences) {
       final animatePosition = sequence[POSITION_TAG].value as Offset;
-      final position = size / 2 + animatePosition;
-      canvas.drawCircle(Offset(position.width, position.height),
-          sequence[RADIUS_TAG].value, paint);
+      final position = tapPosition + animatePosition;
+      canvas.drawCircle(
+          Offset(position.dx, position.dy), sequence[RADIUS_TAG].value, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => isDragging;
 }
